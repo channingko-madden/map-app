@@ -1,3 +1,11 @@
+/**
+ * @file gridmap.cpp
+ * @date 12/7/2022
+ *
+ * @brief Definition of GridMap class
+ *
+ */
+
 #include "gridmap.h"
 #include <QDebug>
 #include <limits>
@@ -13,17 +21,9 @@ void GridMap::calculatePath(
         QList<bool> mapData,
         int beginIndex,
         int endIndex) {
-    qDebug() << "calculatePath called rows: " << row << " cols: " << column;
-    auto matrix = createAdjacencyMatrix(row, column, mapData);
 
-    /*
-    for (const auto& row : matrix) {
-        auto dOut = qDebug(); // create QDebug object, it prints on destruction
-        for (const auto& col : row) {
-            dOut << col; // build string
-        }
-    }
-    */
+    qDebug() << "calculatePath called rows: " << row << " cols: " << column;
+    const auto matrix = createAdjacencyMatrix(row, column, mapData);
 
     // calculate shortest path using the adjacency matrix and send it to UI!
     emit pathData(dijkstra(matrix, beginIndex, endIndex));
@@ -32,34 +32,31 @@ void GridMap::calculatePath(
 std::vector<std::vector<bool>> GridMap::createAdjacencyMatrix(
         const int rows,
         const int cols,
-        QList<bool> mapData) const {
+        const QList<bool>& mapData) const {
+
     std::vector<std::vector<bool>> matrix(rows * cols, std::vector(rows * cols, false));
 
-    /* Lets label the nodes according to their index within mapData.
-     * For example, the first node 0 could possibly be adjacent to node 1 or node 0 + row
-     * For any given node label = N, it could be the adjacent node N-1 to the left, node N+1
-     * to the right, node N - cols above, and node N + cols below
-     */
-
-    // here i corresponds to the node label
+    // here the index (vertex) corresponds to the vertex label
     for (auto vertex = 0; vertex < mapData.size(); ++vertex) {
-        //setAdjacencyValues(mapData[i], matrix, i, rows, cols);
-       auto row = vertex / cols;
-       auto col = vertex - (row * cols);
-       //qDebug() << "row: " << row << " col: " << col;
-       if (col != 0) { // there can be a node to the left
+        /*
+         * For any given vertex label = N, it could be the adjacent vertex N-1 to the left,
+         * vertex N+1 to the right, vertex N - cols above, and vertex N + cols below
+         */
+       auto row = vertex / cols; // row that the vertex is within
+       auto col = vertex - (row * cols); // col that the vertex is within
+       if (col != 0) { // there can be a vertex to the left
            matrix[vertex][vertex - 1] = !(mapData[vertex] || mapData[vertex - 1]);
            matrix[vertex - 1][vertex] = !(mapData[vertex] || mapData[vertex - 1]);//symmetric
        }
-       if (col < cols - 1) {// there can be a node to the right
+       if (col < cols - 1) { // there can be a vertex to the right
            matrix[vertex][vertex + 1] = !(mapData[vertex] || mapData[vertex + 1]);
            matrix[vertex + 1][vertex] = !(mapData[vertex] || mapData[vertex + 1]);
        }
-       if (row != 0) { // there can be a node above
+       if (row != 0) { // there can be a vertex above
           matrix[vertex][vertex - cols] = !(mapData[vertex] || mapData[vertex - cols]);
           matrix[vertex - cols][vertex] = !(mapData[vertex] || mapData[vertex - cols]);
        }
-       if (row < rows - 1) { // there can be a node below
+       if (row < rows - 1) { // there can be a vertex below
           matrix[vertex][vertex + cols] = !(mapData[vertex] | mapData[vertex + cols]);
           matrix[vertex + cols][vertex] = !(mapData[vertex] | mapData[vertex + cols]);
        }
@@ -68,35 +65,10 @@ std::vector<std::vector<bool>> GridMap::createAdjacencyMatrix(
     return matrix;
 }
 
-void GridMap::setAdjacencyValues(
-        const bool isBlocked,
-        std::vector<std::vector<bool>>& matrix,
-        const size_t vertex,
-        const int rows,
-        const int cols) const {
+int GridMap::minVertexDistance(
+        const std::vector<int>& distances,
+        const std::vector<bool>& sptSet) const {
 
-       auto row = vertex / cols;
-       auto col = vertex - (row * cols);
-       //qDebug() << "row: " << row << " col: " << col;
-       if (col != 0) { // there can be a node to the left
-           matrix[vertex][vertex-1] = !isBlocked;
-           matrix[vertex-1][vertex] = !isBlocked; // symmetric!
-       }
-       if (col < cols - 1) {// there can be a node to the right
-           matrix[vertex][vertex+1] = !isBlocked;
-           matrix[vertex+1][vertex] = !isBlocked;
-       }
-       if (row != 0) { // there can be a node above
-          matrix[vertex][vertex-cols] = !isBlocked;
-          matrix[vertex-cols][vertex] = !isBlocked;
-       }
-       if (row < rows - 1) { // there can be a node below
-          matrix[vertex][vertex+cols] = !isBlocked;
-          matrix[vertex+cols][vertex] = !isBlocked;
-       }
-}
-
-int GridMap::minVertexDistance(std::vector<int>& distances, std::vector<bool> sptSet) const {
    auto min = std::numeric_limits<int>::max();  // initialize the minimum distance
    auto min_index = -1;
    for (auto i = 0; i < distances.size(); ++i) {
@@ -109,57 +81,63 @@ int GridMap::minVertexDistance(std::vector<int>& distances, std::vector<bool> sp
 }
 
 QList<int> GridMap::dijkstra(
-        std::vector<std::vector<bool>>& adjacencyMatrix,
-        int beginIndex,
-        int endIndex) const {
-
+        const std::vector<std::vector<bool>>& adjacencyMatrix,
+        const int beginIndex,
+        const int endIndex) const {
 
     std::vector<bool> spt(adjacencyMatrix.size(), false); // shortest path tree
 
-
-    // initialize the calculate distances matrix
+    // initialize the distances vector
     std::vector<int> distances(adjacencyMatrix.size(), std::numeric_limits<int>::max());
-    // beginning index will always have -1 as the prev!
-    std::vector<int> prevs(adjacencyMatrix.size(), -1);
     distances[beginIndex] = 0; // initialize distance from start to start as 0
 
-    // update this to only run until the destination is found! Don't need to
-    // proceed with the algorithm any further
-    for (auto i = 0; i < adjacencyMatrix.size() - 1; ++i) {
-        auto minIndex = minVertexDistance(distances, spt);
+    /* This is the "previous" vector
+     * Each index corresponds to a grid space, and the value at the index is the
+     * previous grid space from the path which led to this one
+    */
+    std::vector<int> prevs(adjacencyMatrix.size(), -1);
+
+    auto minIndex = minVertexDistance(distances, spt);
+    while (minIndex >= 0) {
 
         spt[minIndex] = true;
 
-        // update the distance from the current node to all nodes it is adjacent to,
-        // ignoring the nodes already within the path
-        // for weighted graph, also check distances[minIndex + adjacencyMatrix[minIndex][v] < distances[v]
+        /* Update the distance from the current vertex to all vertex it is adjacent to,
+         * ignoring the vertices already within the path.
+         * For weighted graph, also need to check:
+         *  distances[minIndex] + adjacencyMatrix[minIndex][v] < distances[v]
+         */
         for (auto v = 0; v < adjacencyMatrix.size(); ++v) {
            if ( !spt[v]
-                && adjacencyMatrix[minIndex][v] // there is an edge
+                && adjacencyMatrix[minIndex][v] // there is an edge between spaces
                 && distances[minIndex] != std::numeric_limits<int>::max()) {
                distances[v] = distances[minIndex] + 1; // change to weight of edge in future!
                prevs[v] = minIndex;
            }
         }
 
-        if (minIndex == endIndex) {
+        // Don't need to proceed with the algorithm any further if the end is found
+        if (spt[endIndex]) {
+            qDebug() << "dijkstra finished";
             break;
         }
+
+        minIndex = minVertexDistance(distances, spt);
     }
 
     // determine the path by moving backwards for the endIndex using the prevs array
     QList<int> shortestPath;
 
-    auto index = endIndex;
+    if (prevs[endIndex] < 0) { // there is no path
+        return shortestPath;
+    }
+
     shortestPath.push_back(endIndex);
-    while(prevs[index] > 0) { // start index is at -1
+    auto index = endIndex;
+    while (prevs[index] >= 0) { // start index has a previous of -1
         index = prevs[index];
         shortestPath.push_back(index);
     }
-    shortestPath.push_back(beginIndex);
-
-    // If there is no possible path, then shortestPath will only contain the start and
-    // end index
 
     {
         auto debugOut = qDebug();

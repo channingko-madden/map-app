@@ -1,3 +1,10 @@
+/**
+  * @file main.qml
+  * @date 12/7/2022
+  *
+  * @brief MapApp main QML
+  */
+
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -19,32 +26,30 @@ Window {
             Layout.alignment: Qt.AlignCenter
         }
 
+        // Place buttons in a horizontal row
+        RowLayout {
 
-       RowLayout {
+            // button to trigger path calculation
+            Button {
+                id: calculateButton
+                Layout.alignment: Qt.AlignCenter
+                text: "Calculate Path"
 
-           // calculate button
-           Button {
-               id: calculateButton
-               Layout.alignment: Qt.AlignCenter
-               text: "Calculate Path"
-
-               /* send a signal that the button has been pressed,
-                  and within the signal pass the map data
-               */
-               onClicked: {
-                   mainMap.sendMapData()
-               }
+                onClicked: {
+                    mainMap.calculatePath()
+                }
            }
 
-           Button {
-               id: clearButton
-               Layout.alignment: Qt.AlignCenter
-               text: "Clear Map"
+            // button to clear the map
+            Button {
+                id: clearButton
+                Layout.alignment: Qt.AlignCenter
+                text: "Clear Map"
 
-               onClicked: {
+                onClicked: {
                    mainMap.clearMap()
-               }
-           }
-       }
+                }
+            }
+        }
     }
 }

@@ -1,3 +1,10 @@
+/**
+ * @file main.cpp
+ * @date 12/7/2022
+ *
+ * @brief MapApp program
+ */
+
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
@@ -9,7 +16,7 @@
 int main(int argc, char *argv[])
 {
     // registering needs to be called before QGuiApplication!
-    qmlRegisterType<GridMap>("appmap.gridmap", 1, 0, "GridMap");
+    qmlRegisterType<GridMap>("mapapp.gridmap", 1, 0, "GridMap");
     QGuiApplication app(argc, argv);
 
     QTranslator translator;
@@ -30,7 +37,6 @@ int main(int argc, char *argv[])
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
     engine.load(url);
-
 
     return app.exec();
 }

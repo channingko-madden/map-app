@@ -1,3 +1,6 @@
+# file: CMakeLists.txt
+# date: 12/7/2022
+
 cmake_minimum_required(VERSION 3.16)
 
 project(map-app VERSION 0.1 LANGUAGES CXX)
@@ -8,7 +11,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(MAP_APP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(MAP_APP_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-#include_directories(${MAP_APP_INCLUDE_DIR})
 
 find_package(Qt6 6.2 COMPONENTS Quick REQUIRED)
 find_package(Qt6 COMPONENTS Core REQUIRED)

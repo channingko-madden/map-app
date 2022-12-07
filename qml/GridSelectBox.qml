@@ -1,14 +1,36 @@
+/*!
+  * @file GridSelectBox.qml
+  * @date 12/7/2022
+  *
+  * @brief GridSelectBox Module
+  * Displays a rectangular grid that represents a 2D occupancy grid map.
+  *
+  * The color of a rectangular grid represents information on the type of Vertex it is:
+  *	  Yellow: Denotes the beginning/end of a path
+  *   Red: Denotes the vertex contains an obstacle
+  *   Green: Denotes the vertex does not contain an obstacle
+  *   Orange: Denotes the vertex is part of the calculated path between beginning and end
+  *
+  * Grid functionality:
+  * Clicking a grid space will change the color of the grid.
+  * There can only be two yellow grid spaces (only one beginning and one end)
+  *
+  * There are methods that can be called for calculating the path, and clearing the
+  * grid (restoring all grid spaces to Green).
+  */
+
 import QtQuick 2.15
-import appmap.gridmap
+import mapapp.gridmap
 
 Grid {
     id: mapGrid
     columns: 5
     rows: 5
     spacing: 6
-    property bool hasBegin: false
-    property bool hasEnd: false
+    property bool hasBegin: false // denote if a beginning vertex has been selected
+    property bool hasEnd: false // denote if an end vertex has been selected
 
+    // This enum represents the type of Vertex within the grid map
     enum Vertex {
         Begin,
         End,
@@ -73,42 +95,41 @@ Grid {
         }
     }
 
+    // C++ object registered to QML for calculating the path
     GridMap {
         id: gridmap
     }
 
-
-    // send int - row
-    // send int - column
-    // send a QList<int> denoting blocked or not blocked
-    function sendMapData()  {
-        gridmap.pathData.connect(drawPath) // connect signal to receive the path data
+    // send the necessary data to the GridMap object
+    function calculatePath()  {
+        // connect to GridMap's signal to receive back the path data
+        gridmap.pathData.connect(drawPath)
         const data = []
-        let startVertex = -1
+        let beginVertex = -1
         let endVertex = -1
         for (let i = 0; i < rectRepeater.count; ++i) {
             let vertex  = rectRepeater.itemAt(i)
-            if (startVertex === -1 && vertex.vertexType === GridSelectBox.Vertex.Begin) {
-                startVertex = i
+            if (beginVertex === -1 && vertex.vertexType === GridSelectBox.Vertex.Begin) {
+                beginVertex = i
             } else if (endVertex === -1 && vertex.vertexType === GridSelectBox.Vertex.End) {
                 endVertex = i
             } else if (vertex.vertexType === GridSelectBox.Vertex.Path) {
                 vertex.setVertexOpen()
             }
 
-
            data[i] = vertex.vertexType === GridSelectBox.Vertex.Obstacle
         }
 
-        // check that there is indeed a start and end position
-        if (startVertex >= 0 && endVertex >= 0) {
-            gridmap.calculatePath(mapGrid.rows, mapGrid.columns, data, startVertex, endVertex)
+        // check that there is indeed a begin and end position
+        if (beginVertex >= 0 && endVertex >= 0) {
+            gridmap.calculatePath(mapGrid.rows, mapGrid.columns, data, beginVertex, endVertex)
         } else {
             // ToDo: send error message to user!
         }
     }
 
-    // clear the map by resetting color to green and isBlocked to false
+    // clear the map by resetting every vertex to open, and noting that there is
+    // no beginning or end vertex selected
     function clearMap() {
         for (let i = 0; i < rectRepeater.count; ++i) {
             rectRepeater.itemAt(i).setVertexOpen()
@@ -118,7 +139,8 @@ Grid {
     }
 
 
-    // pathData is a list of ints
+    // Slot that connects to GridMap.pathData signal
+    // @param pathData A list of ints
     function drawPath(pathData) {
         for (let i = 0; i < pathData.length; ++i) {
             let vertex  = rectRepeater.itemAt(pathData[i])
