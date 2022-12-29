@@ -1,6 +1,6 @@
 /**
   * @file main.qml
-  * @date 12/7/2022
+  * @date 12/29/2022
   *
   * @brief MapApp main QML
   */
@@ -28,6 +28,7 @@ Window {
 
         // Place buttons in a horizontal row
         RowLayout {
+            Layout.alignment: Qt.AlignCenter
 
             // button to trigger path calculation
             Button {

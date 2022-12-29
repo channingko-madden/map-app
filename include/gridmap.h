@@ -1,6 +1,6 @@
 /**
  * @file gridmap.h
- * @date 12/7/2022
+ * @date 12/29/2022
  *
  * @brief GridMap class
  *
@@ -16,19 +16,19 @@
 
 /**
  * @class GridMap gridmap.h "gridmap.h"
- * @brief The GridMap class
+ * @brief The GridMap class is used to calculate the shortest path from a start and
+ * end location within a retangular occupancy grid map
  *
  * This class treats a rectangular grid as an occupancy grid map.
  * A grid space can be marked as containing a obstacle (true) or not (false).
  * Each grid space is labeled according to its position within the grid, starting with
  * grid space 0 located in the upper left corner, and travesering row by row. For example,
  * a 3x3 grid has spaces labeled:
- * 	0 1 2
- * 	3 4 5
- *  6 7 8
  *
- * The occupancy grid is used to calculate the shortest path from a start and
- * end location.
+ * > 0 1 2\n
+ * > 3 4 5\n
+ * > 6 7 8
+ *
  */
 class GridMap : public QObject
 {
@@ -98,7 +98,7 @@ private:
      * @brief dijkstra
      * Dijkstra algorithm for finding the shortest path between a start and end position
      * @param adjacencyMatrix The adjacency matrix
-     * @param startIndex Index of where the path begins
+     * @param beginIndex Index of where the path begins
      * @param endIndex Index of where the path ends
      * @return List of indexes for each vertex within the path.
      * If there is no possible path, then the returned list will be empty
@@ -109,5 +109,4 @@ private:
             const int endIndex) const;
 
 };
-
 #endif // GRIDMAP_H

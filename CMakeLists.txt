@@ -26,6 +26,7 @@ qt_add_qml_module(appmap-app
     VERSION 1.0
     QML_FILES main.qml
     qml/GridSelectBox.qml
+    qml/gridselectbox/RectangleVertex.qml
 )
 
 set_target_properties(appmap-app PROPERTIES
