@@ -75,7 +75,7 @@ Window {
 
             Label {
                 id: label
-                text: "\nClick a tile to change the color:\n\n- Green: open path\n- Red: blocked path\n- Yellow: start/end location\n"
+                text: "\nClick a tile to change the color:\n\n- Green: open path\n- Red: blocked path\n- Yellow: begin/end location\n"
                 anchors.centerIn: parent
                 font.pointSize: 12
             }
