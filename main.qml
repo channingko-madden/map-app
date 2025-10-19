@@ -18,39 +18,66 @@ Window {
     title: qsTr("mapapp")
 
     // Primary layout of the app
-    ColumnLayout {
-        anchors.centerIn: parent
+    RowLayout {
+        anchors.fill: parent
 
-        // Grid that serves as the map
-        GridSelectBox {
-            id: mainMap
+        ColumnLayout {
             Layout.alignment: Qt.AlignCenter
+            Layout.minimumWidth: 400
+            Layout.leftMargin: 10
+            Layout.rightMargin: 10
+
+
+            // Grid that serves as the map
+            GridSelectBox {
+                id: mainMap
+                Layout.alignment: Qt.AlignCenter
+            }
+
+            // Place buttons in a horizontal row
+            RowLayout {
+                Layout.alignment: Qt.AlignCenter
+
+                // button to trigger path calculation
+                Button {
+                    id: calculateButton
+                    Layout.alignment: Qt.AlignCenter
+                    text: "Calculate Path"
+
+                    onClicked: {
+                        mainMap.calculatePath()
+                    }
+               }
+
+                // button to clear the map
+                Button {
+                    id: clearButton
+                    Layout.alignment: Qt.AlignCenter
+                    text: "Clear Map"
+
+                    onClicked: {
+                       mainMap.clearMap()
+                    }
+                }
+            }
         }
 
-        // Place buttons in a horizontal row
-        RowLayout {
-            Layout.alignment: Qt.AlignCenter
+        Rectangle {
+            border.color: "grey"
+            border.width: 3
+            color: "transparent"
+            radius: 4
+            Layout.fillWidth: true
+            Layout.minimumWidth: label.implicitWidth + 20 // Padding
+            Layout.preferredHeight: label.implicitHeight + 20 // Padding
+            Layout.leftMargin: 10
+            Layout.rightMargin: 10
 
-            // button to trigger path calculation
-            Button {
-                id: calculateButton
-                Layout.alignment: Qt.AlignCenter
-                text: "Calculate Path"
-
-                onClicked: {
-                    mainMap.calculatePath()
-                }
-           }
-
-            // button to clear the map
-            Button {
-                id: clearButton
-                Layout.alignment: Qt.AlignCenter
-                text: "Clear Map"
-
-                onClicked: {
-                   mainMap.clearMap()
-                }
+            Label {
+                id: label
+                text: "\nClick a tile to change the color:\n\n- Green: open path\n- Red: blocked path\n- Yellow: start/end location\n"
+                anchors.centerIn: parent
+                font.pointSize: 12
             }
         }
     }
