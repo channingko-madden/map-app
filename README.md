@@ -2,9 +2,14 @@
 An app with a map, created using Qt with a mix of QML and C++.
 
 ## Occupancy Map
-This app presents the user a 2D occupancy map.  
+This app presents the user a 2D occupancy map.
+
+![Initial Screen](/docs/initial_screen.png)
+
 The user can change the contents of the map, and calculate the
 shortest path between a beginning and end point on the map.
+
+![Showing Path](/docs/showing_path.png)
 
 ## Doxygen Documentation
 HTML API documentation can be created using doxygen.  
