@@ -5,7 +5,7 @@
  * @brief GridSelectBox Module
  */
 
-import QtQuick 2.15
+import QtQuick
 import QtQuick.Dialogs
 import mapapp.gridmap
 import "./"
@@ -139,8 +139,8 @@ Grid {
         for (let i = 0; i < rectRepeater.count; ++i) {
             rectRepeater.itemAt(i).setVertexOpen()
         }
-        this.hasBegin = false
-        this.hasEnd = false
+        hasBegin = false
+        hasEnd = false
     }
 
     /**

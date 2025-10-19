@@ -20,3 +20,12 @@ Documentation can then be viewed in a browser. To open from the terminal:
 ```bash
 xdg-open docs/html/index.html
 ```
+
+## Build
+
+```bash
+mkdir build
+cd build
+cmake .. -DQt6_DIR=<some_path>/Qt/6.X.X/<os>/lib/cmake/Qt6
+cmake --build .
+```

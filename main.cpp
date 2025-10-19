@@ -10,6 +10,7 @@
 
 #include <QLocale>
 #include <QTranslator>
+#include <QString>
 
 #include "gridmap.h"
 
@@ -22,7 +23,7 @@ int main(int argc, char *argv[])
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
     for (const QString &locale : uiLanguages) {
-        const QString baseName = "map-app_" + QLocale(locale).name();
+        const QString baseName = "mapapp_" + QLocale(locale).name();
         if (translator.load(":/i18n/" + baseName)) {
             app.installTranslator(&translator);
             break;
@@ -30,7 +31,7 @@ int main(int argc, char *argv[])
     }
 
     QQmlApplicationEngine engine;
-    const QUrl url(u"qrc:/map-app/main.qml"_qs);
+    const QUrl url(QString(u"qrc:/qt/qml/mapapp/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
         if (!obj && url == objUrl)
